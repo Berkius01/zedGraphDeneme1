@@ -11,16 +11,24 @@ using ZedGraph;
 using System.IO;
 using System.IO.Ports;
 
+using Microsoft.Office.Interop.Excel;
+using excel = Microsoft.Office.Interop.Excel;
+
 namespace zedGraphDeneme1
 {
+    
     public partial class Form1 : Form
     {
+        //grafik zımbırtıları
         GraphPane yükseklik = new GraphPane();
         GraphPane basinc = new GraphPane();
         GraphPane sicaklik = new GraphPane();
         GraphPane x = new GraphPane();
         GraphPane y = new GraphPane();
         GraphPane z = new GraphPane();
+        GraphPane a = new GraphPane();
+        GraphPane b = new GraphPane();
+        GraphPane c = new GraphPane();
 
 
         PointPairList pointYükseklik = new PointPairList();
@@ -29,6 +37,9 @@ namespace zedGraphDeneme1
         PointPairList pointX = new PointPairList();
         PointPairList pointY = new PointPairList();
         PointPairList pointZ = new PointPairList();
+        PointPairList pointA = new PointPairList();
+        PointPairList pointB = new PointPairList();
+        PointPairList pointC = new PointPairList();
 
         LineItem curveYükseklik;
         LineItem curveBasinc;
@@ -36,15 +47,62 @@ namespace zedGraphDeneme1
         LineItem curveX;
         LineItem curveY;
         LineItem curveZ;
-
+        LineItem curveA;
+        LineItem curveB;
+        LineItem curveC;
+        
         double zaman;
         public Form1()
         {
             InitializeComponent();
         }
 
+        //excel elemanları
+        
+        excel.Application uygulama;
+        excel.Workbook kitap;
+        excel.Worksheet sayfa;
+        object Missing = System.Reflection.Missing.Value;
+        excel.Range range;
+        //int column = 1;
+        int row = 2;
+
         private void Form1_Load(object sender, EventArgs e)
         {
+            uygulama = new excel.Application();
+            kitap = uygulama.Workbooks.Add(Missing);
+            sayfa = (excel.Worksheet)uygulama.Worksheets.get_Item(1);
+            range = sayfa.UsedRange;
+            sayfa = (excel.Worksheet)uygulama.ActiveSheet;
+            uygulama.Visible = true;
+
+            excel.Range bölge = (excel.Range)sayfa.Cells[1, 1];
+            bölge.Value2 = "sicaklik";
+
+            excel.Range bölge1 = (excel.Range)sayfa.Cells[1, 2];
+            bölge1.Value2 = "basinc";
+
+            excel.Range bölge2 = (excel.Range)sayfa.Cells[1, 3];
+            bölge2.Value2 = "hiz";
+
+            excel.Range bölge3 = (excel.Range)sayfa.Cells[1, 4];
+            bölge3.Value2 = "yükseklik";
+
+            excel.Range bölge4 = (excel.Range)sayfa.Cells[1, 5];
+            bölge4.Value2 = "x";
+
+            excel.Range bölge5 = (excel.Range)sayfa.Cells[1, 6];
+            bölge5.Value2 = "y";
+
+
+            dataGridView1.Columns.Add("sicaklik", "sicaklik");
+            dataGridView1.Columns.Add("basinc", "basinc");
+            dataGridView1.Columns.Add("hiz", "hiz");
+            dataGridView1.Columns.Add("yükseklik", "yükseklik");
+            dataGridView1.Columns.Add("x", "x");
+            dataGridView1.Columns.Add("y", "y");
+            
+
             Control.CheckForIllegalCrossThreadCalls = false;
             comboBox1.Items.Add(300);
             comboBox1.Items.Add(1200);
@@ -59,7 +117,7 @@ namespace zedGraphDeneme1
             portlar.Items.Add("COM4");
             portlar.Items.Add("COM5");
             portlar.Items.Add("COM6");
-
+            
             grafik();
         }
         private void grafik()
@@ -118,10 +176,44 @@ namespace zedGraphDeneme1
             curveZ.Line.Width = 1;
             //z
 
+            a = zedGraphControl7.GraphPane;
+            a.Title.Text = "a - zaman grafiği";
+            a.XAxis.Title.Text = "t(s)";
+            a.YAxis.Title.Text = "a";
+            a.YAxis.Scale.Min = 0;
+            curveA = a.AddCurve(null, pointA, Color.Red, SymbolType.None);
+            curveA.Line.Width = 1;
+            //a
+
+            b = zedGraphControl9.GraphPane;
+            b.Title.Text = "b - zaman grafiği";
+            b.XAxis.Title.Text = "t(s)";
+            b.YAxis.Title.Text = "b";
+            b.YAxis.Scale.Min = 0;
+            curveB = b.AddCurve(null, pointB, Color.Red, SymbolType.None);
+            curveB.Line.Width = 1;
+            //b
+
+            c = zedGraphControl12.GraphPane;
+            c.Title.Text = "c - zaman grafiği";
+            c.XAxis.Title.Text = "t(s)";
+            c.YAxis.Title.Text = "c";
+            c.YAxis.Scale.Min = 0;
+            curveC = c.AddCurve(null, pointC, Color.Red, SymbolType.None);
+            curveC.Line.Width = 1;
+            //c
+
         }
+        
+
         private void serialPort1_DataReceived(object sender, SerialDataReceivedEventArgs e)
         {
+
+            
+
             string[] data = serialPort1.ReadLine().Split(';');
+
+            
             zaman += 0.05;
             pointYükseklik.Add(new PointPair(zaman, Convert.ToDouble(data[1].ToString())));
             pointX.Add(new PointPair(zaman, Convert.ToDouble(data[2].ToString())));
@@ -129,6 +221,11 @@ namespace zedGraphDeneme1
             pointZ.Add(new PointPair(zaman, Convert.ToDouble(data[4].ToString())));
             pointSicaklik.Add(new PointPair(zaman, Convert.ToDouble(data[5].ToString())));
             pointBasinc.Add(new PointPair(zaman, Convert.ToDouble(data[6].ToString())));
+            pointA.Add(new PointPair(zaman, Convert.ToDouble(data[6].ToString())));
+            pointB.Add(new PointPair(zaman, Convert.ToDouble(data[3].ToString())));
+            pointC.Add(new PointPair(zaman, Convert.ToDouble(data[1].ToString())));
+
+            
 
             yükseklik.XAxis.Scale.Max = zaman;
             x.XAxis.Scale.Max = zaman;
@@ -136,6 +233,9 @@ namespace zedGraphDeneme1
             z.XAxis.Scale.Max = zaman;
             sicaklik.XAxis.Scale.Max = zaman;
             basinc.XAxis.Scale.Max = zaman;
+            a.XAxis.Scale.Max = zaman;
+            b.XAxis.Scale.Max = zaman;
+            c.XAxis.Scale.Max = zaman;
 
             yükseklik.AxisChange();
             x.AxisChange();
@@ -143,6 +243,9 @@ namespace zedGraphDeneme1
             z.AxisChange();
             sicaklik.AxisChange();
             basinc.AxisChange();
+            a.AxisChange();
+            b.AxisChange();
+            c.AxisChange();
 
             zedGraphControl1.Refresh();
             zedGraphControl2.Refresh();
@@ -150,10 +253,34 @@ namespace zedGraphDeneme1
             zedGraphControl4.Refresh();
             zedGraphControl5.Refresh();
             zedGraphControl6.Refresh();
+            zedGraphControl12.Refresh();
+            zedGraphControl9.Refresh();
+            zedGraphControl7.Refresh();
 
+            excel.Range bölge = (excel.Range)sayfa.Cells[row, 1];
+            bölge.Value2 = data[1];
+            
 
+            bölge = (excel.Range)sayfa.Cells[row, 2];
+            bölge.Value2 = data[2];
+           
 
+            bölge = (excel.Range)sayfa.Cells[row, 3];
+            bölge.Value2 = data[3];
+            
 
+            bölge = (excel.Range)sayfa.Cells[row, 4];
+            bölge.Value2 = data[4];
+            
+            bölge = (excel.Range)sayfa.Cells[row, 5];
+            bölge.Value2 = data[5];
+            
+
+            bölge = (excel.Range)sayfa.Cells[row, 6];
+            bölge.Value2 = data[6];
+            
+
+            row++;
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -162,7 +289,8 @@ namespace zedGraphDeneme1
             {
                 MessageBox.Show("port ve baudrate seç");
             }
-            else {
+            else
+            {
                 serialPort1.PortName = portlar.SelectedItem.ToString();
                 serialPort1.BaudRate = int.Parse(comboBox1.SelectedItem.ToString());
                 serialPort1.Open();
@@ -173,9 +301,76 @@ namespace zedGraphDeneme1
             }
         }
 
-        private void button2_Click(object sender, EventArgs e)
+        private void button2_Click(object sender, EventArgs e)//bağlantı kes
         {
             serialPort1.Close();
         }
+
+        private void button3_Click(object sender, EventArgs e)//grafik1
+        {
+            grafik1.BringToFront();
+            grafik1.Focus();
+        }
+
+        private void button4_Click_1(object sender, EventArgs e)//grafik2
+        {
+            grafik2.BringToFront();
+            grafik2.Focus();
+        }
+
+        private void button5_Click(object sender, EventArgs e)//telemetri verilerini çek
+        {
+            panel1.BringToFront();
+            panel1.Focus();
+        }
+
+        private void button6_Click(object sender, EventArgs e)//grafik temizle
+        {
+            curveYükseklik.Clear();
+            curveBasinc.Clear();
+            curveSicaklik.Clear();
+            curveA.Clear();
+            curveB.Clear();
+            curveC.Clear();
+            curveX.Clear();
+            curveY.Clear();
+            curveZ.Clear();
+
+            zedGraphControl1.Refresh();
+            zedGraphControl2.Refresh();
+            zedGraphControl3.Refresh();
+            zedGraphControl4.Refresh();
+            zedGraphControl5.Refresh();
+            zedGraphControl6.Refresh();
+            zedGraphControl12.Refresh();
+            zedGraphControl9.Refresh();
+            zedGraphControl7.Refresh();
+        }
+
+        private void button7_Click(object sender, EventArgs e)
+        {
+            string[] veriler2;
+            
+            veriler2 = new string[6];
+            
+            string satir = textBox1.Text;
+            for(int i = 1; i < 7; i++) 
+            {
+                excel.Range bölge = (excel.Range)sayfa.Cells[satir, i];
+                veriler2[i - 1] = Convert.ToString(bölge.Value2);
+                
+            }
+
+            dataGridView1.Rows[0].Cells[0].Value =veriler2[0];
+            dataGridView1.Rows[0].Cells[1].Value = veriler2[1];
+            dataGridView1.Rows[0].Cells[2].Value = veriler2[2];
+            dataGridView1.Rows[0].Cells[3].Value = veriler2[3];
+            dataGridView1.Rows[0].Cells[4].Value = veriler2[4];
+            dataGridView1.Rows[0].Cells[5].Value = veriler2[5];
+
+
+
+        }
     }
 }
+
