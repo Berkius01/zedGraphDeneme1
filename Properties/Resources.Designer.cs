@@ -73,6 +73,16 @@ namespace zedGraphDeneme1.Properties {
         /// <summary>
         ///   System.Drawing.Bitmap türünde yerelleştirilmiş bir kaynak arar.
         /// </summary>
+        internal static System.Drawing.Bitmap unknown {
+            get {
+                object obj = ResourceManager.GetObject("unknown", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   System.Drawing.Bitmap türünde yerelleştirilmiş bir kaynak arar.
+        /// </summary>
         internal static System.Drawing.Bitmap WhatsApp_Image_2021_03_06_at_20_45_33 {
             get {
                 object obj = ResourceManager.GetObject("WhatsApp Image 2021-03-06 at 20.45.33", resourceCulture);
